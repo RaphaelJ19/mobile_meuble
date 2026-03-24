@@ -63,6 +63,22 @@ try {
     
     $row = $result->fetch_assoc();
     
+    // Récupérer les photos du bien
+    $photosSql = "SELECT lien_photo FROM photo WHERE id_bien = ? ORDER BY id_photo ASC";
+    $photosStmt = $conn->prepare($photosSql);
+    $photosStmt->bind_param("i", $id_bien);
+    $photosStmt->execute();
+    $photosResult = $photosStmt->get_result();
+    
+    $photos = [];
+    while ($pRow = $photosResult->fetch_assoc()) {
+        $photos[] = $pRow['lien_photo'];
+    }
+    $photosStmt->close();
+    
+    $photos = array_map(fn($p) => $p, $photos);
+    $photoUrl = !empty($photos) ? $photos[0] : '';
+    
     // Récupérer les prestations du bien
     $prestSql = "
         SELECT p.id_prestation, p.libelle_prestation
@@ -117,10 +133,6 @@ try {
     $avisStmt->close();
     $conn->close();
     
-    // Générer une URL d'image placeholder unique
-    $imageId = 400 + $id_bien;
-    $photoUrl = 'https://picsum.photos/800/600?random=' . $imageId;
-    
     echo json_encode([
         'success' => true,
         'data' => [
@@ -138,6 +150,7 @@ try {
             'note_moyenne' => (float)$row['note_moyenne'],
             'nb_avis' => (int)$row['nb_avis'],
             'photo_url' => $photoUrl,
+            'photos' => $photos,
             'prestations' => $prestations,
             'avis' => $avis
         ]

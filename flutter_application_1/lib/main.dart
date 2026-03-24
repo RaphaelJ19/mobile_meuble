@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'models/prestation.dart' as prestation_model;
 import 'models/bien.dart';
 import 'services/prestation_service.dart';
 import 'services/bien_service.dart';
 import 'pages/bien_detail_page.dart';
+import 'pages/map_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,7 +19,38 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Location Meublés',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: const HomePage(),
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
+      supportedLocales: const [Locale('fr')],
+      home: const MainShell(),
+    );
+  }
+}
+
+class MainShell extends StatefulWidget {
+  const MainShell({super.key});
+
+  @override
+  State<MainShell> createState() => _MainShellState();
+}
+
+class _MainShellState extends State<MainShell> {
+  int _currentIndex = 0;
+
+  final _pages = const [HomePage(), MapPage()];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: _pages[_currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (i) => setState(() => _currentIndex = i),
+        selectedItemColor: const Color(0xFF1A237E),
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Accueil'),
+          BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Carte'),
+        ],
+      ),
     );
   }
 }

@@ -78,7 +78,8 @@ try {
             c.id_commune,
             COALESCE(ROUND(AVG(a.note), 1), 0) as note_moyenne,
             COUNT(DISTINCT a.id_avis) as nb_avis,
-            150 as prix_nuit
+            150 as prix_nuit,
+            (SELECT lien_photo FROM photo WHERE id_bien = b.id_bien ORDER BY id_photo ASC LIMIT 1) as photo_url
         FROM bien b
         LEFT JOIN commune c ON b.id_commune = c.id_commune
         LEFT JOIN avis a ON b.id_bien = a.id_bien AND a.valide = 1
@@ -103,10 +104,6 @@ try {
     while ($row = $result->fetch_assoc()) {
         // Vérifier que le bien est valide (id_bien > 0)
         if ((int)$row['id_bien'] > 0) {
-            // Générer une URL d'image placeholder unique basée sur l'ID du bien
-            $imageId = 400 + (int)$row['id_bien'];  // Pour avoir des images différentes
-            $photoUrl = 'https://picsum.photos/800/600?random=' . $imageId;
-            
             $biens[] = [
                 'id_bien' => (int)$row['id_bien'],
                 'nom_bien' => $row['nom_bien'],
@@ -122,7 +119,7 @@ try {
                 'prix_nuit' => (int)$row['prix_nuit'],
                 'note_moyenne' => (float)$row['note_moyenne'],
                 'nb_avis' => (int)$row['nb_avis'],
-                'photo_url' => $photoUrl
+                'photo_url' => $row['photo_url'] ? $row['photo_url'] : ''
             ];
         }
     }

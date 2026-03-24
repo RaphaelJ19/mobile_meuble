@@ -16,7 +16,7 @@ class PrestationService {
             headers: {'Content-Type': 'application/json; charset=utf-8'},
           )
           .timeout(
-            const Duration(seconds: 10),
+            const Duration(seconds: 30),
             onTimeout: () {
               throw Exception('Délai d\'expiration dépassé');
             },
